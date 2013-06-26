@@ -18,7 +18,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   
   gem.add_dependency "paperclip"
-  gem.add_dependency "curb"
+  gem.add_dependency "webdav-client"
   
   gem.add_development_dependency "rspec"
   gem.add_development_dependency "guard-rspec"
