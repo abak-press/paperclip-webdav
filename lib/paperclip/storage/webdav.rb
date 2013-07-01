@@ -9,13 +9,16 @@ module Paperclip
           if @options[:webdav_servers].blank?
             raise "Webdav servers not set."
           end
-          unless @options[:url].to_s.match(/^:public_host$/)
-            @options[:path]  = @options[:path].gsub(/:url/, @options[:url]).gsub(/^:rails_root\/public\/system\//, '')
-            @options[:url]   = ':public_host'
+          if @options[:public_url].blank?
+            raise "public url not set."
           end
-          Paperclip.interpolates(:public_host) do |attachment, style|
-            attachment.public_url(style)
-          end unless Paperclip::Interpolations.respond_to? :public_host
+          unless @options[:url].to_s.match(/^:public_url$/)
+            @options[:path]  = @options[:path].gsub(/:url/, @options[:url]).gsub(/^:rails_root\/public\/system\//, '')
+            @options[:url]   = ':public_url'
+          end
+          Paperclip.interpolates(:public_url) do |attachment, style|
+            base.instance_eval do public_url style end
+          end unless Paperclip::Interpolations.respond_to? :public_url
         end
       end
       
@@ -52,9 +55,10 @@ module Paperclip
       end
       
       private
+
       def public_url style = default_style
-        @options[:public_host] ||= URI.parse(@options[:webdav_servers].first)
-        URI.join(@options[:public_host], path(style)).to_s
+        @options[:public_url] ||= URI.parse(@options[:webdav_servers].first[:url])
+        URI.join(@options[:public_url], path(style)).to_s
       end
       
       def servers

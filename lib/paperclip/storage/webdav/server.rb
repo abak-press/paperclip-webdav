@@ -1,6 +1,6 @@
 require 'uri'
 require 'curb'
-require "~/src/rails/webdav-client/lib/net/webdav/client"
+require "net/webdav/client"
 
 module Paperclip
   module Storage
@@ -19,7 +19,7 @@ module Paperclip
         end
         
         def put_file path, file
-          @client.put_file(path, file)
+          @client.put_file(path, file, true)
         end
         
         def delete_file path
