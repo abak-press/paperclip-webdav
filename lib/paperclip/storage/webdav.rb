@@ -9,7 +9,8 @@ module Paperclip
           if @options[:webdav_servers].blank?
             raise "Webdav servers not set."
           end
-          if @options[:public_url].blank?
+
+          if !Paperclip::Interpolations.respond_to?(:public_url) && @options[:public_url].blank?
             raise "public url not set."
           end
           unless @options[:url].to_s.match(/^:public_url$/)
@@ -39,7 +40,7 @@ module Paperclip
         end
         after_flush_writes
         @queued_for_write = {}
-      end
+    end
 
       def flush_deletes
         @queued_for_delete.each do |path|
