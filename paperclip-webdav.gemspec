@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'paperclip/storage/version'
 
 Gem::Specification.new do |gem|
-  gem.name          = "paperclip-webdav"
+  gem.name          = "apress-paperclip-webdav"
   gem.version       = Paperclip::Storage::Webdav::VERSION
   gem.authors       = ["Nikita Vorobej"]
   gem.email         = ["mail@gamersroom.ru"]
@@ -17,7 +17,7 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
   
-  gem.add_dependency "paperclip"
+  gem.add_dependency "apress-paperclip"
   gem.add_dependency "webdav-client"
   
   gem.add_development_dependency "rspec"
