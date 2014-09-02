@@ -1,0 +1,1 @@
+require 'paperclip-webdav'
