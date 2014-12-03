@@ -1,125 +1,138 @@
-require "spec_helper"
+require 'spec_helper'
 
 describe Paperclip::Storage::Webdav do
-  let(:original_path) { "/files/original/image.png" }
-  let(:thumb_path) { "/files/thumb/image.png" }
-  [:attachment, :attachment_with_public_url].each do |attachment|
-    let(attachment) do
-      model = double()
-      model.stub(:id).and_return(1)
-      model.stub(:image_file_name).and_return("image.png")
-      
-      options = {}
-      options[:storage] = :webdav
-      options[:path] = "/files/:style/:filename"
-      options[:webdav_servers] = [
-        {:url => "http://webdav1.example.com"},
-        {:url => "http://webdav2.example.com"}
-      ]        
-      options[:public_url] = "http://public.example.com" if attachment == :attachment_with_public_url
-      
-      attachment = Paperclip::Attachment.new(:image, model, options)
-      attachment.instance_variable_set(:@original_path, original_path)
-      attachment.instance_variable_set(:@thumb_path, thumb_path)
-      attachment
-    end
+  let(:original_path) { '/files/original/image.png' }
+  let(:thumb_path) { '/files/thumb/image.png' }
+  let(:model) { double('Model', id: 1, image_file_name: 'image.png') }
+  let(:base_options) do
+    {
+      storage: :webdav,
+      path: '/files/:style/:filename',
+      webdav_servers: [
+        {url: 'http://webdav1.example.com'},
+        {url: 'http://webdav2.example.com'}
+      ]
+    }
   end
-  
-  describe "generate public url" do
-    [:attachment, :attachment_with_public_url].each do |a|
-      context a do
-        [:original, :thumb].each do |style|
-          it "with #{style} style" do
-            attachment.instance_eval do
-              host = ""
-              if a == :attachment
-                host = "http://webdav1.example.com"
-              else
-                host = "http://public.example.com"
-              end
-              should_receive(:public_url).and_return("#{host}/files/#{style}/image.png")
-              public_url style
-            end
-          end
-        end
+
+  let(:attachment) do
+    attachment = Paperclip::Attachment.new(:image, model, base_options)
+    attachment.instance_variable_set(:@original_path, original_path)
+    attachment.instance_variable_set(:@thumb_path, thumb_path)
+    attachment
+  end
+
+  let(:attachment_with_public_url) do
+    attachment = Paperclip::Attachment.new(:image, model, base_options.merge(public_url: 'http://public.example.com'))
+    attachment.instance_variable_set(:@original_path, original_path)
+    attachment.instance_variable_set(:@thumb_path, thumb_path)
+    attachment
+  end
+
+  describe '#public_url' do
+    context 'when attachment_without_public_url' do
+      it do
+        expect(attachment.public_url(:original)).
+          to eq 'http://webdav1.example.com/files/original/image.png'
+      end
+
+      it do
+        expect(attachment.public_url(:thumb)).
+          to eq 'http://webdav1.example.com/files/thumb/image.png'
+      end
+    end
+
+    context 'when attachment_with_public_url' do
+      it do
+        expect(attachment_with_public_url.public_url(:original)).
+          to eq 'http://public.example.com/files/original/image.png'
+      end
+
+      it do
+        expect(attachment_with_public_url.public_url(:thumb)).
+          to eq 'http://public.example.com/files/thumb/image.png'
       end
     end
   end
-  
-  describe "exists?" do
-    it "should returns false if original_name not set" do
-      attachment.stub(:original_filename).and_return(nil)
-      attachment.exists?.should be_false
+
+  describe 'exists?' do
+    it 'should returns false if original_name not set' do
+      allow(attachment).to receive(:original_filename).and_return(nil)
+      expect(attachment.exists?).to be_falsy
     end
-    
-    it "should returns true if file exists on the primary server" do
-      attachment.instance_eval do
-        primary_server.should_receive(:file_exists?).with(@original_path).and_return(true)
-      end
-      attachment.exists?.should be_true
+
+    it 'should returns true if file exists on the primary server' do
+      expect(attachment.primary_server).
+        to receive(:file_exists?).with(attachment.instance_variable_get(:@original_path)).and_return(true)
+
+      expect(attachment.exists?).to be_truthy
     end
-    
-    it "accepts an optional style_name parameter to build the correct file pat" do
-      attachment.instance_eval do
-        primary_server.should_receive(:file_exists?).with(@thumb_path).and_return(true)
-      end
-      attachment.exists?(:thumb).should be_true
+
+    it 'accepts an optional style_name parameter to build the correct file pat' do
+      expect(attachment.primary_server).
+        to receive(:file_exists?).with(attachment.instance_variable_get(:@thumb_path)).and_return(true)
+
+      expect(attachment.exists?(:thumb)).to be_truthy
     end
   end
-  
-  describe "flush_writes" do    
-    it "store all files on each server" do
-      original_file = double("file")
-      thumb_file = double("file")
+
+  describe 'flush_writes' do
+    it 'store all files on each server' do
       attachment.instance_variable_set(:@queued_for_write, {
-        :original => double("file"),
-        :thumb    => double("file")
+        :original => double('file'),
+        :thumb    => double('file')
       })
-      
-      attachment.instance_eval do
-        @queued_for_write.each do |k,v|
-          v.should_receive(:rewind)
-        end
-        
-        servers.each do |server|
-          server.should_receive(:put_file).with(@original_path, @queued_for_write[:original])
-          server.should_receive(:put_file).with(@thumb_path, @queued_for_write[:thumb])
-        end
+
+      queued_for_write = attachment.instance_variable_get(:@queued_for_write)
+
+      queued_for_write.each do |_, v|
+        expect(v).to receive(:rewind)
       end
-      attachment.should_receive(:after_flush_writes).with(no_args)
+
+      attachment.servers.each do |server|
+        expect(server).
+          to receive(:put_file).with(attachment.instance_variable_get(:@original_path), queued_for_write[:original])
+
+        expect(server).
+          to receive(:put_file).with(attachment.instance_variable_get(:@thumb_path), queued_for_write[:thumb])
+      end
+
+      expect(attachment).to receive(:after_flush_writes).with(no_args)
       attachment.flush_writes
-      attachment.queued_for_write.should eq({})      
+      expect(attachment.queued_for_write).to be_empty
     end
   end
-  
-  describe "flush_deletes" do
-    it "deletes files on each servers" do
-      attachment.instance_variable_set(:@queued_for_delete, [original_path, thumb_path])
-      attachment.instance_eval do
-        servers.each do |server|
-          @queued_for_delete.each do |path|
-            server.should_receive(:delete_file).with(path)
-          end
+
+  describe 'flush_deletes' do
+    it 'deletes files on each servers' do
+      queued_for_delete = [original_path, thumb_path]
+
+      attachment.instance_variable_set(:@queued_for_delete, queued_for_delete)
+
+      attachment.servers.each do |server|
+        queued_for_delete.each do |path|
+          expect(server).to receive(:delete_file).with(path)
         end
       end
+
       attachment.flush_deletes
-      attachment.instance_variable_get(:@queued_for_delete).should eq([])
+      expect(attachment.instance_variable_get(:@queued_for_delete)).to be_empty
     end
   end
-  
-  describe "copy_to_local_file" do
-    it "save file" do
-      attachment.instance_eval do
-        primary_server.should_receive(:get_file).with(@original_path, "/local").and_return(nil)
-      end
-      attachment.copy_to_local_file(:original, "/local")
+
+  describe 'copy_to_local_file' do
+    it 'save file' do
+      expect(attachment.primary_server).
+        to receive(:get_file).with(attachment.instance_variable_get(:@original_path), '/local').and_return(nil)
+
+      attachment.copy_to_local_file(:original, '/local')
     end
-    
-    it "save file with custom style" do
-      attachment.instance_eval do
-        primary_server.should_receive(:get_file).with(@thumb_path, "/local").and_return(nil)
-      end
-      attachment.copy_to_local_file(:thumb, "/local")
+
+    it 'save file with custom style' do
+      expect(attachment.primary_server).
+        to receive(:get_file).with(attachment.instance_variable_get(:@thumb_path), '/local').and_return(nil)
+
+      attachment.copy_to_local_file(:thumb, '/local')
     end
   end
 end

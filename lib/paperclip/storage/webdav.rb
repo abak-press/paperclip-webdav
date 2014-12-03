@@ -1,29 +1,25 @@
-require "paperclip"
-require "paperclip/storage/webdav/server"
+require 'paperclip'
+require 'paperclip/storage/webdav/server'
 
 module Paperclip
   module Storage
     module Webdav
-      def self.extended base        
+      def self.extended(base)
         base.instance_eval do
-          if @options[:webdav_servers].blank?
-            raise "Webdav servers not set."
+          raise 'Webdav servers not set.' if @options[:webdav_servers].blank?
+
+          unless @options[:url].to_s.match(/^:public_url$/)
+            @options[:path] = @options[:path].gsub(/:url/, @options[:url]).gsub(%r{^:rails_root/public/system/}, '')
+            @options[:url] = ':public_url'
           end
 
-          if !Paperclip::Interpolations.respond_to?(:public_url) && @options[:public_url].blank?
-            raise "public url not set."
-          end
-          unless @options[:url].to_s.match(/^:public_url$/)
-            @options[:path]  = @options[:path].gsub(/:url/, @options[:url]).gsub(/^:rails_root\/public\/system\//, '')
-            @options[:url]   = ':public_url'
-          end
           Paperclip.interpolates(:public_url) do |attachment, style|
-            base.instance_eval do public_url style end
+            attachment.public_url(style)
           end unless Paperclip::Interpolations.respond_to? :public_url
         end
       end
-      
-      def exists? style_name = default_style
+
+      def exists?(style_name = default_style)
         if original_filename
           primary_server.file_exists? path(style_name)
         else
@@ -40,7 +36,7 @@ module Paperclip
         end
         after_flush_writes
         @queued_for_write = {}
-    end
+      end
 
       def flush_deletes
         @queued_for_delete.each do |path|
@@ -51,17 +47,15 @@ module Paperclip
         @queued_for_delete = []
       end
 
-      def copy_to_local_file style, local_dest_path
+      def copy_to_local_file(style, local_dest_path)
         primary_server.get_file path(style), local_dest_path
       end
-      
-      private
 
-      def public_url style = default_style
+      def public_url(style = default_style)
         @options[:public_url] ||= URI.parse(@options[:webdav_servers].first[:url])
         URI.join(@options[:public_url], path(style)).to_s
       end
-      
+
       def servers
         @webdav_servers ||= begin
           servers = []
@@ -71,7 +65,7 @@ module Paperclip
           servers
         end
       end
-      
+
       def primary_server
         servers.first
       end

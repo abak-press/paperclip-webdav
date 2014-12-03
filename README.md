@@ -30,7 +30,7 @@ class User < ActiveRecord::Base
     # Set where to store the file on the Webdav server(s).
     # This supports Paperclip::Interpolations.
     :path => "/images/:attachment/:id/:style/:filename",
-    
+
     # Hostname for generating links.
     :public_url => "http://cdn.example.com", # optional
 
@@ -61,14 +61,14 @@ module YourApp
     config.paperclip_defaults = {
       # Choose the Webdav storage backend
       :storage => :webdav,
-      
+
       # Set where to store the file on the Webdav server(s).
       # This supports Paperclip::Interpolations.
       :path => "/images/:attachment/:id/:style/:filename",
-      
+
       # Hostname for generating links.
       :public_url => "http://cdn.example.com", # optional
-      
+
       # The list of Webdav servers to use
       :webdav_servers => [
         {
@@ -89,10 +89,18 @@ end
 
 ```
 
+## Gem Releasing
+
+1. должен быть настроен git remote upstream и должны быть права на push
+1. git checkout master
+2. git pull upstream master
+3. правим версию гема в файле VERSION в корне гема. (читаем правила версионирования http://semver.org/)
+4. bundle exec rake release
+
 ## Contributing
 
-1. Fork it
+1. Fork it ( https://github.com/abak-press/paperclip-webdav/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+5. Create a new Pull Request
