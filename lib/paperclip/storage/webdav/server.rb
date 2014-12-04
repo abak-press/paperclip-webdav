@@ -6,10 +6,6 @@ module Paperclip
   module Storage
     module Webdav
       class Server
-        extend Forwardable
-
-        def_delegators :@client, :file_exists?, :get_file, :delete_file
-
         def initialize(credentials)
           @client = Net::Webdav::Client.new(credentials[:url],
                                             username: credentials[:username],
@@ -17,7 +13,25 @@ module Paperclip
         end
 
         def put_file(path, file)
-          @client.put_file(path, file, true)
+          @client.put_file(encoded_path(path), file, true)
+        end
+
+        def file_exists?(path)
+          @client.file_exists?(encoded_path(path))
+        end
+
+        def get_file(remote_file_path, local_file_path)
+          @client.get_file(encoded_path(remote_file_path), local_file_path)
+        end
+
+        def delete_file(path)
+          @client.delete_file(encoded_path(path))
+        end
+
+        private
+
+        def encoded_path(path)
+          URI.encode(path)
         end
       end
     end
