@@ -22,7 +22,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency 'activesupport', '>= 3.0'
 
   gem.add_development_dependency 'bundler', '~> 1.6'
-  gem.add_development_dependency 'apress-gems', '>= 0.0.4'
+  gem.add_development_dependency 'apress-gems', '>= 0.2.0'
   gem.add_development_dependency 'rspec', '~> 3.1'
   gem.add_development_dependency 'guard-rspec'
   gem.add_development_dependency 'rake'
