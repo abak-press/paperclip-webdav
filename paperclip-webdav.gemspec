@@ -18,6 +18,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ['lib']
 
   gem.add_runtime_dependency 'paperclip', '~> 4.2'
+  gem.add_runtime_dependency 'mime-types', '< 3.0'
   gem.add_runtime_dependency 'webdav-client', '~> 0.0.1'
   gem.add_runtime_dependency 'activesupport', '>= 3.0'
 
