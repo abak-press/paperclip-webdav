@@ -1,4 +1,5 @@
 require 'paperclip'
 require 'active_support/core_ext/string/inflections'
+require 'active_support/core_ext/hash/deep_merge'
 require 'paperclip/patches/adapter'
 require 'paperclip/storage/webdav'

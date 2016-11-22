@@ -12,7 +12,7 @@ describe Paperclip::Storage::Webdav::Server do
   end
 
   describe '#put_file' do
-    it { expect(client).to receive(:put_file).with('/path', '/file', true) }
+    it { expect(client).to receive(:put_file).with('/path', '/file') }
 
     after { server.put_file('/path', '/file') }
   end
