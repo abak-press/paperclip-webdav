@@ -1,5 +1,17 @@
 
 #### [Current]
+ * 2015-11-24 [67e18a0](../../commit/67e18a0) - __(Semyon Pupkov)__ feature: show host in error if could not connect to node
+ * 2014-12-04 [498572b](../../commit/498572b) - __(bibendi)__ Release 1.0.1
+ * 2014-12-04 [f461011](../../commit/f461011) - __(bibendi)__ encode server path
+ * 2014-12-03 [4002a51](../../commit/4002a51) - __(bibendi)__ Release 1.0.0
+ * 2014-12-01 [742dc3b](../../commit/742dc3b) - __(bibendi)__ feature(paperclip): update paperclip to 4.2
+
+#### v0.1.0
+ * 2015-11-25 [2d19bb3](../../commit/2d19bb3) - __(Semyon Pupkov)__ Release 0.1.0
+ * 2015-11-24 [ea4e521](../../commit/ea4e521) - __(Semyon Pupkov)__ feature: show host in error if could not connect to node
+
+#### v1.0.1
+ * 2014-12-04 [498572b](../../commit/498572b) - __(bibendi)__ Release 1.0.1
  * 2014-12-04 [f461011](../../commit/f461011) - __(bibendi)__ encode server path
 
 #### v1.0.0
