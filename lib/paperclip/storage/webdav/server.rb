@@ -19,7 +19,7 @@ module Paperclip
         end
 
         def put_file(path, file)
-          with_errors_handling { @client.put_file(encoded_path(path), file, true) }
+          with_errors_handling { @client.put_file(encoded_path(path), file) }
         end
 
         def file_exists?(path)
