@@ -1,5 +1,10 @@
 
 #### [Current]
+ * 2016-11-22 [83e121d](../../commit/83e121d) - __(Andrew N. Shalaev)__ chore: add drone CI
+ * 2016-11-22 [2031c8a](../../commit/2031c8a) - __(Andrew N. Shalaev)__ fix: don't create directories, nginx should deal with it
+
+#### v1.0.2
+ * 2016-11-22 [0023ba7](../../commit/0023ba7) - __(Andrew N. Shalaev)__ Release 1.0.2
  * 2015-11-24 [67e18a0](../../commit/67e18a0) - __(Semyon Pupkov)__ feature: show host in error if could not connect to node
  * 2014-12-04 [498572b](../../commit/498572b) - __(bibendi)__ Release 1.0.1
  * 2014-12-04 [f461011](../../commit/f461011) - __(bibendi)__ encode server path
