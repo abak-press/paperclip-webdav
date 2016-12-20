@@ -1,5 +1,10 @@
 
 #### [Current]
+ * 2016-12-19 [2104aa7](../../commit/2104aa7) - __(Dmitry Bochkarev)__ chore: gem versions for ruby < 2
+ * 2016-12-19 [2a6a422](../../commit/2a6a422) - __(Dmitry Bochkarev)__ fix: удаление curb
+
+#### v1.0.3
+ * 2016-11-23 [fca02d6](../../commit/fca02d6) - __(Andrew N. Shalaev)__ Release 1.0.3
  * 2016-11-22 [83e121d](../../commit/83e121d) - __(Andrew N. Shalaev)__ chore: add drone CI
  * 2016-11-22 [2031c8a](../../commit/2031c8a) - __(Andrew N. Shalaev)__ fix: don't create directories, nginx should deal with it
 
