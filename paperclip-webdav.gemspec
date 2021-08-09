@@ -19,7 +19,7 @@ Gem::Specification.new do |gem|
 
   gem.add_runtime_dependency 'paperclip', '~> 4.2'
   gem.add_runtime_dependency 'webdav-client', '>= 0.0.1'
-  gem.add_runtime_dependency 'activesupport', '>= 3.0'
+  gem.add_runtime_dependency 'activesupport', '>= 4.0'
 
   gem.add_development_dependency 'bundler', '>= 1.7'
   gem.add_development_dependency 'rspec', '>= 3.1'
