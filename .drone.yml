@@ -1,30 +1,80 @@
-matrix:
-  include:
-    - DOCKER_RUBY_VERSION: 2.2
-      RUBY_IMAGE_TAG: 2.2-1
+name: build
 
-    - DOCKER_RUBY_VERSION: 1.9.3
-      RUBY_IMAGE_TAG: 1.9.3-2
+kind: pipeline
+type: docker
 
-build:
-  image: abakpress/dind:2
+volumes:
+  - name: images
+    host:
+      path: /home/data/drone/images
+  - name: bundle
+    host:
+      path: /home/data/drone/gems
+  - name: keys
+    host:
+      path: /home/data/drone/key_cache
+
+spec_step_common: &spec_step_common
+  image: abakpress/dind-testing:1.0.3
+  pull: if-not-exists
   privileged: true
   volumes:
-    - /home/data/drone/images:/images
-    - /home/data/drone/gems:/bundle
-    - /home/data/drone/key_cache:/ssh_keys
-  environment:
-    - COMPOSE_FILE_EXT=drone
-    - RAILS_ENV=test
+    - name: images
+      path: /images
+    - name: bundle
+      path: /bundle
+    - name: keys
+      path: /ssh_keys
   commands:
-    - wrapdocker docker -v
+    - prepare-build
 
-    - if [ ! -e /images/ssh-agent.tar ]; then docker pull whilp/ssh-agent; docker save whilp/ssh-agent > /images/ssh-agent.tar; fi
-    - if [ ! -e /images/ruby_$RUBY_IMAGE_TAG.tar ]; then docker pull abakpress/ruby:$RUBY_IMAGE_TAG; docker save abakpress/ruby:$RUBY_IMAGE_TAG > /images/ruby_$RUBY_IMAGE_TAG.tar; fi
-
-    - docker load -i /images/ssh-agent.tar
-    - docker load -i /images/ruby_$RUBY_IMAGE_TAG.tar
+    - fetch-images
+      --image whilp/ssh-agent
+      --image abakpress/ruby-app:$RUBY_IMAGE_TAG
 
     - dip ssh add -T -v /ssh_keys -k /ssh_keys/id_rsa
     - dip provision
     - dip rspec
+
+steps:
+  - name: Tests Ruby 2.2
+    environment:
+      COMPOSE_FILE_EXT: drone
+      DOCKER_RUBY_VERSION: 2.2
+      RUBY_IMAGE_TAG: 2.2-latest
+      RAILS_ENV: test
+    <<: *spec_step_common
+
+  - name: Tests Ruby 2.3
+    environment:
+      COMPOSE_FILE_EXT: drone
+      DOCKER_RUBY_VERSION: 2.3
+      RUBY_IMAGE_TAG: 2.3-latest
+      RAILS_ENV: test
+    <<: *spec_step_common
+
+  - name: Tests Ruby 2.4
+    environment:
+      COMPOSE_FILE_EXT: drone
+      DOCKER_RUBY_VERSION: 2.4
+      RUBY_IMAGE_TAG: 2.4-latest
+      RAILS_ENV: test
+    <<: *spec_step_common
+
+  - name: Tests Ruby 2.5
+    environment:
+      COMPOSE_FILE_EXT: drone
+      DOCKER_RUBY_VERSION: 2.5
+      RUBY_IMAGE_TAG: 2.5-latest
+      RAILS_ENV: test
+    <<: *spec_step_common
+
+  - name: release
+    image: abakpress/gem-publication:latest
+    pull: if-not-exists
+    when:
+      event: push
+      branch: master
+      status: success
+    commands:
+      - release-gem
